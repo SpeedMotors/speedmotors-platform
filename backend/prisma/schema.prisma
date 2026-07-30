@@ -1,0 +1,171 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CUSTOMER
+  SALES
+  TECHNICIAN
+  ADMIN
+}
+
+enum LeadStatus {
+  New
+  Contacted
+  Quoted
+  Won
+}
+
+enum JobStatus {
+  Received
+  Diagnosis
+  Repair
+  QC
+  Ready
+}
+
+model User {
+  id              Int              @id @default(autoincrement())
+  email           String           @unique
+  password        String
+  name            String
+  role            Role             @default(CUSTOMER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  leads           Lead[]           @relation("SalesLeads")
+  testDrives      TestDrive[]
+  serviceBookings ServiceBooking[]
+  jobCards        JobCard[]        @relation("AssignedTechnician")
+  stockAdjustments StockHistory[]   @relation("StockAdjustments")
+  partsAllocated   PartAllocation[] @relation("PartsAllocations")
+}
+
+model Car {
+  id           Int            @id @default(autoincrement())
+  make         String
+  model        String
+  year         Int
+  price        Float
+  type         String
+  image        String         // Primary thumbnail
+  images       String[]       // List of additional images
+  power        String
+  acceleration String
+  range        String
+  topSpeed     String
+  createdAt    DateTime       @default(now())
+  leads        Lead[]
+  testDriveCars TestDriveCar[]
+}
+
+model Lead {
+  id        Int        @id @default(autoincrement())
+  name      String
+  carId     Int
+  car       Car        @relation(fields: [carId], references: [id])
+  status    LeadStatus @default(New)
+  date      String
+  userId    Int?
+  salesRep  User?      @relation("SalesLeads", fields: [userId], references: [id])
+  createdAt DateTime   @default(now())
+}
+
+model TestDrive {
+  id        Int            @id @default(autoincrement())
+  date      String
+  time      String
+  location  String
+  userId    Int
+  user      User           @relation(fields: [userId], references: [id])
+  cars      TestDriveCar[]
+  createdAt DateTime       @default(now())
+}
+
+model TestDriveCar {
+  id          Int       @id @default(autoincrement())
+  testDriveId Int
+  testDrive   TestDrive @relation(fields: [testDriveId], references: [id], onDelete: Cascade)
+  carId       Int
+  car         Car       @relation(fields: [carId], references: [id], onDelete: Cascade)
+}
+
+model ServiceBooking {
+  id          Int      @id @default(autoincrement())
+  name        String
+  phone       String
+  make        String
+  model       String
+  year        Int
+  date        String
+  serviceType String
+  issue       String?
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  jobCard     JobCard?
+  createdAt   DateTime @default(now())
+}
+
+model JobCard {
+  id                 String         @id
+  customerName       String
+  carMake            String
+  issue              String
+  status             JobStatus      @default(Received)
+  expectedCompletion String
+  technicianId       Int?
+  technician         User?          @relation("AssignedTechnician", fields: [technicianId], references: [id])
+  totalCost          Float
+  parts              Json           // Stores array of parts: { name: string, price: number }
+  rating             Int?
+  feedback           String?
+  isPaid             Boolean        @default(false)
+  serviceBookingId   Int            @unique
+  serviceBooking     ServiceBooking @relation(fields: [serviceBookingId], references: [id], onDelete: Cascade)
+  partAllocations    PartAllocation[]
+  createdAt          DateTime       @default(now())
+}
+
+model SparePart {
+  id           Int              @id @default(autoincrement())
+  partNo       String           @unique
+  name         String
+  description  String?
+  price        Float
+  stock        Int              @default(0)
+  minStock     Int              @default(0)
+  category     String
+  isDeleted    Boolean          @default(false)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  allocations  PartAllocation[]
+  stockHistory StockHistory[]
+}
+
+model StockHistory {
+  id        Int       @id @default(autoincrement())
+  partId    Int
+  part      SparePart @relation(fields: [partId], references: [id])
+  type      String    // e.g. INCREASE, DECREASE, ADJUST, ALLOCATE, DEALLOCATE
+  quantity  Int
+  reason    String?
+  userId    Int
+  user      User      @relation("StockAdjustments", fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+}
+
+model PartAllocation {
+  id            Int       @id @default(autoincrement())
+  partId        Int
+  part          SparePart @relation(fields: [partId], references: [id])
+  jobCardId     String
+  jobCard       JobCard   @relation(fields: [jobCardId], references: [id], onDelete: Cascade)
+  quantity      Int
+  allocatedById Int
+  allocatedBy   User      @relation("PartsAllocations", fields: [allocatedById], references: [id])
+  createdAt     DateTime  @default(now())
+}
