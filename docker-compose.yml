@@ -27,6 +27,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: shivamrajdocker/speedmotors-backend:latest
     container_name: speedmotors-backend
     restart: always
     ports:
@@ -48,6 +49,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    image: shivamrajdocker/speedmotors-frontend:latest
     container_name: speedmotors-frontend
     restart: always
     ports:

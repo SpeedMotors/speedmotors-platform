@@ -4,8 +4,8 @@ FROM node:20-alpine
 # Set working directory
 WORKDIR /app
 
-# Install dependencies required for Prisma engine on Alpine
-RUN apk add --no-cache openssl
+# Install dependencies required for Prisma engine and native builds (bcrypt) on Alpine
+RUN apk add --no-cache openssl python3 make g++
 
 # Copy package management files
 COPY package*.json ./
