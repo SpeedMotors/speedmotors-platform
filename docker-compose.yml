@@ -1,0 +1,66 @@
+name: speedmotors-platform
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: speedmotors-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: speedmotors
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - speedmotors-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d speedmotors"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Node.js Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: speedmotors-backend
+    restart: always
+    ports:
+      - "5001:5000"
+    environment:
+      PORT: 5000
+      NODE_ENV: production
+      DATABASE_URL: "postgresql://postgres:password@postgres:5432/speedmotors?schema=public"
+      JWT_SECRET: "speedmotors_super_secret_jwt_key_2026"
+      JWT_EXPIRES_IN: "7d"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - speedmotors-network
+
+  # React Frontend Service (Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: speedmotors-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - speedmotors-network
+
+networks:
+  speedmotors-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

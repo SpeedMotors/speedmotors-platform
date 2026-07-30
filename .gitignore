@@ -1,64 +1,75 @@
-# Logs
-logs
+# ==========================================
+# SpeedMotors Platform Git Ignore Standard
+# ==========================================
+
+# 1. Dependencies & Package Modules
+node_modules/
+**/node_modules/
+.npm/
+.yarn/
+.pnpm-store/
+
+# 2. Environment Files & Secret Credentials
+.env
+.env.*
+!.env.example
+*.env
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.cer
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+secrets/
+credentials/
+*.p8
+
+# 3. Database Files & Prisma Artifacts
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+backend/prisma/*.db
+backend/prisma/*.sqlite
+
+# 4. Build Outputs & Compiled Assets
+dist/
+**/dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.vite/
+**/.vite/
+
+# 5. Logs & Temporary Directories
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+temp/
+tmp/
+scratch/
+**/scratch/
 
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-dist-ssr/
-build/
-coverage/
-
-# Environment files
-.env
-.env.*
-!.env.example
-
-# Local files
-*.local
-
-# Editor directories and files
+# 6. IDE, OS & System Metadata
 .vscode/*
 !.vscode/extensions.json
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 .DS_Store
 Thumbs.db
-
-# OS files
-*.swp
-*.swo
-
-# TypeScript
-*.tsbuildinfo
-
-# Cache
-.cache/
-.parcel-cache/
-.eslintcache
-
-# Next.js
-.next/
-
-# Nuxt
-.nuxt/
-
-# SvelteKit
-.svelte-kit/
-
-# Turbo
-.turbo/
-
-# Vite
-vite.svg
-
-# Backend uploads (optional)
-uploads/
-temp/
-tmp/
+desktop.ini
