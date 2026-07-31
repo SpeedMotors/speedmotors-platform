@@ -30,46 +30,39 @@ pipeline {
     }
 
     stages {
-
         stage('Detect Changes') {
-
             steps {
-
                 script {
 
+                    sh '''
+                        echo "===== Workspace ====="
+                        pwd
+                        ls -la
+
+                        echo "===== Git Status ====="
+                        git status
+
+                        echo "===== HEAD ====="
+                        git log --oneline -2
+
+                        echo "===== Changed Files ====="
+                        git diff --name-only HEAD~1 HEAD
+                    '''
+
                     def changedFiles = sh(
-                        script: '''
-                            if git rev-parse HEAD~1 >/dev/null 2>&1
-                            then
-                                git diff --name-only HEAD~1 HEAD
-                            else
-                                echo "__FIRST_BUILD__"
-                            fi
-                        ''',
+                        script: 'git diff --name-only HEAD~1 HEAD',
                         returnStdout: true
                     ).trim()
 
-                    if (changedFiles.contains("__FIRST_BUILD__")) {
+                    echo "Changed Files:\n${changedFiles}"
 
-                        env.BACKEND_CHANGED = "true"
-                        env.FRONTEND_CHANGED = "true"
+                    env.BACKEND_CHANGED = changedFiles.contains("backend/") ? "true" : "false"
+                    env.FRONTEND_CHANGED = changedFiles.contains("frontend/") ? "true" : "false"
 
-                    } else {
-
-                        if (changedFiles.contains("backend/")) {
-                            env.BACKEND_CHANGED = "true"
-                        }
-
-                        if (changedFiles.contains("frontend/")) {
-                            env.FRONTEND_CHANGED = "true"
-                        }
-
-                    }
-
+                    echo "Backend Changed : ${env.BACKEND_CHANGED}"
+                    echo "Frontend Changed: ${env.FRONTEND_CHANGED}"
                 }
-
             }
-
         }
 
         stage('Build & Test') {
