@@ -19,24 +19,16 @@ pipeline {
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/speedmotors-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/speedmotors-frontend"
 
-        IMAGE_TAG = ''
+        IMAGE_TAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
 
     stages {
 
         stage('Prepare') {
             steps {
-                script {
-                    def gitSha = sh(
-                        script: 'git rev-parse --short HEAD',
-                        returnStdout: true
-                        ).trim()
-
-                        env.IMAGE_TAG = gitSha
-                        echo "Image Tag : ${gitSha}"
-                        }
-                   }
-                }
+                echo "Image Tag : ${env.IMAGE_TAG}"
+            }
+        }
 
         stage('Backend Build & Test') {
             steps {
