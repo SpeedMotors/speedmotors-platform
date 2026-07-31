@@ -29,50 +29,46 @@ pipeline {
         FRONTEND_CHANGED = "false"
     }
 
-    stages {
+   stage('Detect Changes') {
 
-        stage('Checkout') {
-            steps {
-                checkout scm
+    steps {
+
+        script {
+
+            def changedFiles = sh(
+                script: '''
+                    if git rev-parse HEAD~1 >/dev/null 2>&1
+                    then
+                        git diff --name-only HEAD~1 HEAD
+                    else
+                        echo "__FIRST_BUILD__"
+                    fi
+                ''',
+                returnStdout: true
+            ).trim()
+
+            if (changedFiles.contains("__FIRST_BUILD__")) {
+
+                env.BACKEND_CHANGED = "true"
+                env.FRONTEND_CHANGED = "true"
+
+            } else {
+
+                if (changedFiles.contains("backend/")) {
+                    env.BACKEND_CHANGED = "true"
+                }
+
+                if (changedFiles.contains("frontend/")) {
+                    env.FRONTEND_CHANGED = "true"
+                }
+
             }
-        }
 
-        stage('Detect Changes') {
-
-            steps {
-
-                script {
-
-    def changedFiles = sh(
-        script: '''
-            if git rev-parse HEAD~1 >/dev/null 2>&1
-            then
-                git diff --name-only HEAD~1 HEAD
-            else
-                echo "__FIRST_BUILD__"
-            fi
-        ''',
-        returnStdout: true
-    ).trim()
-
-    if (changedFiles.contains("__FIRST_BUILD__")) {
-
-        env.BACKEND_CHANGED = "true"
-        env.FRONTEND_CHANGED = "true"
-
-    } else {
-
-        if (changedFiles.contains("backend/")) {
-            env.BACKEND_CHANGED = "true"
-        }
-
-        if (changedFiles.contains("frontend/")) {
-            env.FRONTEND_CHANGED = "true"
         }
 
     }
-}
 
+}
         stage('Build & Test') {
 
             parallel {
