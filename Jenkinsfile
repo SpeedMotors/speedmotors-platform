@@ -27,15 +27,16 @@ pipeline {
         stage('Prepare') {
             steps {
                 script {
-                    env.IMAGE_TAG = sh(
+                    def gitSha = sh(
                         script: 'git rev-parse --short HEAD',
                         returnStdout: true
-                    ).trim()
-
-                    echo "Image Tag : ${env.IMAGE_TAG}"
+                        ).trim()
+                        
+                        env.IMAGE_TAG = gitSha
+                        echo "Image Tag : ${gitSha}"
+                        }
+                   }
                 }
-            }
-        }
 
         stage('Backend Build & Test') {
             steps {
