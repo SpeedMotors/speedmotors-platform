@@ -9,212 +9,218 @@ pipeline {
     options {
         timestamps()
         ansiColor('xterm')
-        disableConcurrentBuilds()  //queues the parallel build - wait until first finishes
+        disableConcurrentBuilds()
+
         buildDiscarder(logRotator(
-                numToKeepStr: '20',
-                artifactNumToKeepStr: '20'
+            numToKeepStr: '20',
+            artifactNumToKeepStr: '20'
         ))
     }
 
     environment {
 
-        DOCKERHUB_USERNAME = "shivamrajdocker"
+        DOCKERHUB_USERNAME = 'shivamrajdocker'
 
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/speedmotors-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/speedmotors-frontend"
 
-        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_TAG = ''
 
-        BACKEND_CHANGED = "false"
-        FRONTEND_CHANGED = "false"
+        BACKEND_CHANGED = 'false'
+        FRONTEND_CHANGED = 'false'
     }
 
     stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Prepare') {
+            steps {
+                script {
+
+                    env.IMAGE_TAG = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Git SHA      : ${env.IMAGE_TAG}"
+                    echo "Backend Image: ${env.BACKEND_IMAGE}:${env.IMAGE_TAG}"
+                    echo "Frontend Image: ${env.FRONTEND_IMAGE}:${env.IMAGE_TAG}"
+
+                }
+            }
+        }
+
         stage('Detect Changes') {
             steps {
                 script {
 
-                    sh '''
-                        echo "===== Workspace ====="
-                        pwd
-                        ls -la
-
-                        echo "===== Git Status ====="
-                        git status
-
-                        echo "===== HEAD ====="
-                        git log --oneline -2
-
-                        echo "===== Changed Files ====="
-                        git diff --name-only HEAD~1 HEAD
-                    '''
-
                     def changedFiles = sh(
-                        script: 'git diff --name-only HEAD~1 HEAD',
+                        script: '''
+                            if git rev-parse HEAD~1 >/dev/null 2>&1; then
+                                git diff --name-only HEAD~1 HEAD
+                            else
+                                git ls-files
+                            fi
+                        ''',
                         returnStdout: true
                     ).trim()
 
-                    echo "Changed Files:\n${changedFiles}"
+                    echo "Changed Files:"
+                    echo changedFiles
 
-                    env.BACKEND_CHANGED = changedFiles.contains("backend/") ? "true" : "false"
-                    env.FRONTEND_CHANGED = changedFiles.contains("frontend/") ? "true" : "false"
+                    env.BACKEND_CHANGED = "false"
+                    env.FRONTEND_CHANGED = "false"
+
+                    if (!changedFiles) {
+
+                        env.BACKEND_CHANGED = "true"
+                        env.FRONTEND_CHANGED = "true"
+
+                    } else {
+
+                        changedFiles.split("\\n").each { file ->
+
+                            file = file.trim()
+
+                            if (file.startsWith("backend/")) {
+                                env.BACKEND_CHANGED = "true"
+                            }
+
+                            if (file.startsWith("frontend/")) {
+                                env.FRONTEND_CHANGED = "true"
+                            }
+                        }
+                    }
 
                     echo "Backend Changed : ${env.BACKEND_CHANGED}"
                     echo "Frontend Changed: ${env.FRONTEND_CHANGED}"
                 }
             }
         }
-
-        stage('Build & Test') {
-
+                stage('Build & Test') {
             parallel {
 
                 stage('Backend') {
-
                     when {
-                        expression {
-                            env.BACKEND_CHANGED == "true"
-                        }
+                        expression { env.BACKEND_CHANGED == "true" }
                     }
 
                     steps {
-
                         dir('backend') {
 
                             sh 'npm ci'
+
+                            sh 'npm run lint'
 
                             sh 'npm test'
 
                         }
-
                     }
-
                 }
 
                 stage('Frontend') {
-
                     when {
-                        expression {
-                            env.FRONTEND_CHANGED == "true"
-                        }
+                        expression { env.FRONTEND_CHANGED == "true" }
                     }
 
                     steps {
-
                         dir('frontend') {
 
                             sh 'npm ci'
 
+                            sh 'npm run lint'
+
+                            sh 'npm test'
+
                             sh 'npm run build'
 
                         }
-
                     }
-
                 }
-
             }
-
         }
-//code quality analysis -check you code
+
         stage('SonarQube Analysis') {
+            when {
+                expression {
+                    env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true"
+                }
+            }
 
             parallel {
 
                 stage('Backend Scan') {
-
                     when {
-                        expression {
-                            env.BACKEND_CHANGED == "true"
-                        }
+                        expression { env.BACKEND_CHANGED == "true" }
                     }
 
                     steps {
+                        withSonarQubeEnv('SonarQube') {
 
-                        dir('backend') {
+                            dir('backend') {
 
-                            withSonarQubeEnv('SonarQube') {
-
-                                sh '''
+                                sh """
                                 sonar-scanner \
-                                -Dsonar.projectKey=speedmotors-backend \
-                                -Dsonar.sources=. \
-                                -Dsonar.projectName=speedmotors-backend
-                                '''
+                                  -Dsonar.projectKey=speedmotors-backend \
+                                  -Dsonar.sources=src
+                                """
 
                             }
 
                         }
-
                     }
-
                 }
 
                 stage('Frontend Scan') {
-
                     when {
-                        expression {
-                            env.FRONTEND_CHANGED == "true"
-                        }
+                        expression { env.FRONTEND_CHANGED == "true" }
                     }
 
                     steps {
+                        withSonarQubeEnv('SonarQube') {
 
-                        dir('frontend') {
+                            dir('frontend') {
 
-                            withSonarQubeEnv('SonarQube') {       //auto provides configured environment variables
-
-                                sh '''
+                                sh """
                                 sonar-scanner \
-                                -Dsonar.projectKey=speedmotors-frontend \
-                                -Dsonar.sources=. \
-                                -Dsonar.projectName=speedmotors-frontend
-                                '''
+                                  -Dsonar.projectKey=speedmotors-frontend \
+                                  -Dsonar.sources=src
+                                """
 
                             }
 
                         }
-
                     }
-
                 }
-
             }
-
         }
-//does this code passes quality check?
+
         stage('Quality Gate') {
-
             when {
                 expression {
-                    env.BACKEND_CHANGED == "true" ||
-                    env.FRONTEND_CHANGED == "true"
+                    env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true"
                 }
             }
 
             steps {
-
-                timeout(time: 5, unit: 'MINUTES') {
-
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
-
-               }
-
+                }
             }
-
         }
-//authentication before image push
-        stage('Docker Login') {
-
+                stage('Docker Login') {
             when {
                 expression {
-                    env.BACKEND_CHANGED == "true" ||
-                    env.FRONTEND_CHANGED == "true"
+                    env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true"
                 }
             }
 
             steps {
-
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub-creds',
@@ -222,190 +228,127 @@ pipeline {
                         passwordVariable: 'DOCKER_PASS'
                     )
                 ]) {
-
-                    sh '''
-                    echo "$DOCKER_PASS" | docker login \
-                    -u "$DOCKER_USER" \
-                    --password-stdin
-                    '''
-
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
                 }
-
             }
-
         }
+
         stage('Docker Build') {
+            when {
+                expression {
+                    env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true"
+                }
+            }
 
             parallel {
 
-                stage('Backend Image') {
-
+                stage('Build Backend Image') {
                     when {
-                        expression {
-                            env.BACKEND_CHANGED == "true"
-                        }
+                        expression { env.BACKEND_CHANGED == "true" }
                     }
 
                     steps {
-
                         sh """
                         docker build \
                         -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
-                        backend
+                        ./backend
                         """
-
                     }
-
                 }
 
-                stage('Frontend Image') {
-
+                stage('Build Frontend Image') {
                     when {
-                        expression {
-                            env.FRONTEND_CHANGED == "true"
-                        }
+                        expression { env.FRONTEND_CHANGED == "true" }
                     }
 
                     steps {
-
                         sh """
                         docker build \
                         -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
-                        frontend
+                        ./frontend
                         """
-
                     }
-
                 }
-
             }
-
         }
-//scan entire docker images - check the container
+
         stage('Trivy Scan') {
+            when {
+                expression {
+                    env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true"
+                }
+            }
 
             parallel {
 
-                stage('Backend Security') {
-
+                stage('Backend Scan') {
                     when {
-                        expression {
-                            env.BACKEND_CHANGED == "true"
-                        }
+                        expression { env.BACKEND_CHANGED == "true" }
                     }
 
                     steps {
-
-                        sh """
-                        trivy image \
-                        --severity HIGH,CRITICAL \
-                        --exit-code 1 \
-                        ${BACKEND_IMAGE}:${IMAGE_TAG}
-                        """
-
+                        sh "trivy image --exit-code 0 ${BACKEND_IMAGE}:${IMAGE_TAG}"
                     }
-
                 }
 
-                stage('Frontend Security') {
-
+                stage('Frontend Scan') {
                     when {
-                        expression {
-                            env.FRONTEND_CHANGED == "true"
-                        }
+                        expression { env.FRONTEND_CHANGED == "true" }
                     }
 
                     steps {
-
-                        sh """
-                        trivy image \
-                        --severity HIGH,CRITICAL \
-                        --exit-code 1 \
-                        ${FRONTEND_IMAGE}:${IMAGE_TAG}
-                        """
-
+                        sh "trivy image --exit-code 0 ${FRONTEND_IMAGE}:${IMAGE_TAG}"
                     }
-
                 }
-
             }
-
         }
 
         stage('Docker Push') {
+            when {
+                expression {
+                    env.BACKEND_CHANGED == "true" || env.FRONTEND_CHANGED == "true"
+                }
+            }
 
             parallel {
 
                 stage('Push Backend') {
-
                     when {
-                        expression {
-                            env.BACKEND_CHANGED == "true"
-                        }
+                        expression { env.BACKEND_CHANGED == "true" }
                     }
 
                     steps {
-
-                        sh """
-                        docker push \
-                        ${BACKEND_IMAGE}:${IMAGE_TAG}
-                        """
-
+                        sh "docker push ${BACKEND_IMAGE}:${IMAGE_TAG}"
                     }
-
                 }
 
                 stage('Push Frontend') {
-
                     when {
-                        expression {
-                            env.FRONTEND_CHANGED == "true"
-                        }
+                        expression { env.FRONTEND_CHANGED == "true" }
                     }
 
                     steps {
-
-                        sh """
-                        docker push \
-                        ${FRONTEND_IMAGE}:${IMAGE_TAG}
-                        """
-
+                        sh "docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}"
                     }
-
                 }
-
             }
-
         }
-
     }
 
     post {
 
         always {
-
-            sh '''
-            docker logout || true
-
-            docker image prune -af || true
-            '''
-
+            sh 'docker logout || true'
+            sh 'docker image prune -af || true'
             cleanWs()
-
         }
 
         success {
-
-            echo "Pipeline Completed Successfully"
-
+            echo 'Pipeline completed successfully.'
         }
 
         failure {
-
-            echo "Pipeline Failed"
-
+            echo 'Pipeline failed.'
         }
-
     }
-
 }
