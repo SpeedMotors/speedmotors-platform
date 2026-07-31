@@ -20,8 +20,6 @@ pipeline {
         BACKEND_IMAGE = "${DOCKERHUB_USERNAME}/speedmotors-backend"
         FRONTEND_IMAGE = "${DOCKERHUB_USERNAME}/speedmotors-frontend"
 
-        TRIVY_CACHE_DIR = '/tmp/trivy-cache-shared'
-
         IMAGE_TAG = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
     }
 
@@ -115,6 +113,8 @@ pipeline {
                 }
             }
         }
+
+//todo--  trivy scan
 
         stage('Docker Push') {
             parallel {
