@@ -8,7 +8,7 @@ pipeline {
 
     options {
         timestamps()
-        ansiColor('xterm')  
+        ansiColor('xterm')
         disableConcurrentBuilds()  //queues the parallel build - wait until first finishes
         buildDiscarder(logRotator(
                 numToKeepStr: '20',
@@ -29,46 +29,49 @@ pipeline {
         FRONTEND_CHANGED = "false"
     }
 
-   stage('Detect Changes') {
+    stages {
 
-    steps {
+        stage('Detect Changes') {
 
-        script {
+            steps {
 
-            def changedFiles = sh(
-                script: '''
-                    if git rev-parse HEAD~1 >/dev/null 2>&1
-                    then
-                        git diff --name-only HEAD~1 HEAD
-                    else
-                        echo "__FIRST_BUILD__"
-                    fi
-                ''',
-                returnStdout: true
-            ).trim()
+                script {
 
-            if (changedFiles.contains("__FIRST_BUILD__")) {
+                    def changedFiles = sh(
+                        script: '''
+                            if git rev-parse HEAD~1 >/dev/null 2>&1
+                            then
+                                git diff --name-only HEAD~1 HEAD
+                            else
+                                echo "__FIRST_BUILD__"
+                            fi
+                        ''',
+                        returnStdout: true
+                    ).trim()
 
-                env.BACKEND_CHANGED = "true"
-                env.FRONTEND_CHANGED = "true"
+                    if (changedFiles.contains("__FIRST_BUILD__")) {
 
-            } else {
+                        env.BACKEND_CHANGED = "true"
+                        env.FRONTEND_CHANGED = "true"
 
-                if (changedFiles.contains("backend/")) {
-                    env.BACKEND_CHANGED = "true"
-                }
+                    } else {
 
-                if (changedFiles.contains("frontend/")) {
-                    env.FRONTEND_CHANGED = "true"
+                        if (changedFiles.contains("backend/")) {
+                            env.BACKEND_CHANGED = "true"
+                        }
+
+                        if (changedFiles.contains("frontend/")) {
+                            env.FRONTEND_CHANGED = "true"
+                        }
+
+                    }
+
                 }
 
             }
 
         }
 
-    }
-
-}
         stage('Build & Test') {
 
             parallel {
@@ -206,7 +209,7 @@ pipeline {
 
             }
 
-}
+        }
 //authentication before image push
         stage('Docker Login') {
 
@@ -237,7 +240,7 @@ pipeline {
 
             }
 
-}
+        }
         stage('Docker Build') {
 
             parallel {
