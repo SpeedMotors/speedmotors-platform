@@ -31,7 +31,7 @@ pipeline {
                         script: 'git rev-parse --short HEAD',
                         returnStdout: true
                         ).trim()
-                        
+
                         env.IMAGE_TAG = gitSha
                         echo "Image Tag : ${gitSha}"
                         }
@@ -57,7 +57,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('SonarQube Analysis') {
             steps {
                 script {
@@ -81,7 +81,7 @@ pipeline {
                         }
                     }
                 }
-                
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
@@ -111,7 +111,7 @@ pipeline {
                     steps {
                         sh """
                         docker build \
-                        -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                        -t ${BACKEND_IMAGE}:${env.IMAGE_TAG} \
                         ./backend
                         """
                     }
@@ -121,7 +121,7 @@ pipeline {
                     steps {
                         sh """
                         docker build \
-                        -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                        -t ${FRONTEND_IMAGE}:${env.IMAGE_TAG} \
                         ./frontend
                         """
                     }
@@ -134,13 +134,13 @@ pipeline {
 
                 stage('Backend') {
                     steps {
-                        sh "trivy image --exit-code 0 ${BACKEND_IMAGE}:${IMAGE_TAG}"
+                        sh "trivy image --exit-code 0 ${BACKEND_IMAGE}:${env.IMAGE_TAG}"
                     }
                 }
 
                 stage('Frontend') {
                     steps {
-                        sh "trivy image --exit-code 0 ${FRONTEND_IMAGE}:${IMAGE_TAG}"
+                        sh "trivy image --exit-code 0 ${FRONTEND_IMAGE}:${env.IMAGE_TAG}"
                     }
                 }
             }
@@ -151,13 +151,13 @@ pipeline {
 
                 stage('Push Backend') {
                     steps {
-                        sh "docker push ${BACKEND_IMAGE}:${IMAGE_TAG}"
+                        sh "docker push ${BACKEND_IMAGE}:${env.IMAGE_TAG}"
                     }
                 }
 
                 stage('Push Frontend') {
                     steps {
-                        sh "docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}"
+                        sh "docker push ${FRONTEND_IMAGE}:${env.IMAGE_TAG}"
                     }
                 }
             }
