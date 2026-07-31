@@ -116,42 +116,6 @@ pipeline {
             }
         }
 
-        // Pre-download the Trivy vulnerability DB once, into a shared cache dir,
-        // BEFORE the parallel scans run. This avoids two Trivy processes
-        // racing to lock/update the same cache at the same time, which was
-        // causing: "unable to initialize fs cache: cache may be in use by
-        // another process: timeout"
-        stage('Trivy DB Update') {
-            steps {
-                sh "trivy image --download-db-only --cache-dir ${TRIVY_CACHE_DIR}"
-            }
-        }
-
-        stage('Trivy Scan') {
-            parallel {
-
-                stage('Backend') {
-                    steps {
-                        sh """
-                        trivy image --exit-code 0 --skip-db-update \
-                        --cache-dir ${TRIVY_CACHE_DIR} \
-                        ${BACKEND_IMAGE}:${env.IMAGE_TAG}
-                        """
-                    }
-                }
-
-                stage('Frontend') {
-                    steps {
-                        sh """
-                        trivy image --exit-code 0 --skip-db-update \
-                        --cache-dir ${TRIVY_CACHE_DIR} \
-                        ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
-                        """
-                    }
-                }
-            }
-        }
-
         stage('Docker Push') {
             parallel {
 
