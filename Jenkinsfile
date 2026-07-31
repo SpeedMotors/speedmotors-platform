@@ -43,36 +43,35 @@ pipeline {
 
                 script {
 
-                    def changedFiles = sh(
-                            script: '''
-                                if git rev-parse HEAD~1 >/dev/null 2>&1
-                                then
-                                    git diff --name-only HEAD~1 HEAD
-                                else
-                                    git ls-files
-                                fi
-                            ''',
-                            returnStdout: true
-                    ).trim()
+    def changedFiles = sh(
+        script: '''
+            if git rev-parse HEAD~1 >/dev/null 2>&1
+            then
+                git diff --name-only HEAD~1 HEAD
+            else
+                echo "__FIRST_BUILD__"
+            fi
+        ''',
+        returnStdout: true
+    ).trim()
 
-                    echo changedFiles
+    if (changedFiles.contains("__FIRST_BUILD__")) {
 
-                    if (changedFiles.contains("backend/")) {
-                        env.BACKEND_CHANGED = "true"
-                    }
+        env.BACKEND_CHANGED = "true"
+        env.FRONTEND_CHANGED = "true"
 
-                    if (changedFiles.contains("frontend/")) {
-                        env.FRONTEND_CHANGED = "true"
-                    }
+    } else {
 
-                    echo "Backend Changed : ${env.BACKEND_CHANGED}"
-                    echo "Frontend Changed: ${env.FRONTEND_CHANGED}"
-
-                }
-
-            }
-
+        if (changedFiles.contains("backend/")) {
+            env.BACKEND_CHANGED = "true"
         }
+
+        if (changedFiles.contains("frontend/")) {
+            env.FRONTEND_CHANGED = "true"
+        }
+
+    }
+}
 
         stage('Build & Test') {
 
@@ -194,28 +193,42 @@ pipeline {
 //does this code passes quality check?
         stage('Quality Gate') {
 
+            when {
+                expression {
+                    env.BACKEND_CHANGED == "true" ||
+                    env.FRONTEND_CHANGED == "true"
+                }
+            }
+
             steps {
 
                 timeout(time: 5, unit: 'MINUTES') {
 
                     waitForQualityGate abortPipeline: true
 
-                }
+               }
 
             }
 
-        }
+}
 //authentication before image push
         stage('Docker Login') {
+
+            when {
+                expression {
+                    env.BACKEND_CHANGED == "true" ||
+                    env.FRONTEND_CHANGED == "true"
+                }
+            }
 
             steps {
 
                 withCredentials([
-                        usernamePassword(
-                                credentialsId: 'dockerhub-creds',
-                                usernameVariable: 'DOCKER_USER',
-                                passwordVariable: 'DOCKER_PASS'
-                        )
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
                 ]) {
 
                     sh '''
@@ -228,8 +241,7 @@ pipeline {
 
             }
 
-        }
-
+}
         stage('Docker Build') {
 
             parallel {
