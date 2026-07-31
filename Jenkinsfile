@@ -57,40 +57,31 @@ pipeline {
                 }
             }
         }
-
+        
         stage('SonarQube Analysis') {
-            parallel {
-
-                stage('Backend Scan') {
-                    steps {
-                        withSonarQubeEnv('SonarQube') {
-                            dir('backend') {
-                                sh '''
-                                sonar-scanner \
-                                  -Dsonar.projectKey=speedmotors-backend \
-                                  -Dsonar.sources=src
-                                '''
+            steps {
+                script {
+                    def scannerHome = tool 'SonarScanner'
+                    withSonarQubeEnv('SonarQube') {
+                        dir('backend') {
+                            sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=speedmotors-backend \
+                            -Dsonar.sources=src
+                            """
                             }
-                        }
-                    }
-                }
-
-                stage('Frontend Scan') {
-                    steps {
-                        withSonarQubeEnv('SonarQube') {
                             dir('frontend') {
-                                sh '''
-                                sonar-scanner \
-                                  -Dsonar.projectKey=speedmotors-frontend \
-                                  -Dsonar.sources=src
-                                '''
+                                sh """
+                                ${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.projectKey=speedmotors-frontend \
+                                -Dsonar.sources=src
+                                """
+                                }
                             }
                         }
                     }
                 }
-            }
-        }
-
+                
         stage('Quality Gate') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
