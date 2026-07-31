@@ -105,7 +105,7 @@ const Home = () => {
                 SpeedMotors isn't just a dealership—it's a destination for automotive purists and forward-thinking drivers alike.
               </motion.p>
               <motion.p variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }} className="text-gray-400 text-lg mb-10 font-light leading-relaxed">
-                For over 15 years, our master craftsmen and engineers have curated a selection of the world's finest vehicles. 
+                For over 15 years, our master craftsmen and engineers have curated a selection of the world's best vehicles. 
                 Every car that enters our fleet is more than a machine; it's a testament to innovation, precision, and passion.
               </motion.p>
               
