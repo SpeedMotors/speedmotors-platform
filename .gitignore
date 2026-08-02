@@ -73,3 +73,13 @@ scratch/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+
+# Kubernetes
+kubeconfig
