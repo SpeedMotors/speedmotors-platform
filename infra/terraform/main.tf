@@ -17,7 +17,7 @@ data "aws_ami" "ubuntu" {
   filter {
     name = "name"
     values = [
-      "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"
+      "ubuntu/images/hvm-ssd-gp3/ubuntu-resolute-26.04-amd64-server-*"
     ]
   }
 }
@@ -30,7 +30,7 @@ module "security_group" {
 
   vpc_id = data.aws_vpc.default.id
 
-  ssh_allowed_cidr = ["YOUR_PUBLIC_IP/32"]
+  ssh_allowed_cidr = ["0.0.0.0/0"]
 }
 
 module "k3s_server" {
