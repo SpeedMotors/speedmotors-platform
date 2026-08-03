@@ -5,11 +5,8 @@ metadata:
   name: speedmotors
   namespace: speedmotors
 
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
-
 spec:
-  ingressClassName: traefik
+  ingressClassName: nginx
 
   rules:
     - http:
