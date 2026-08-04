@@ -132,7 +132,7 @@ pipeline {
                         sh """
                         docker build \
                         --pull \
-                        -t ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                        -t ${BACKEND_IMAGE}:${env.IMAGE_TAG} \
                         -t ${BACKEND_IMAGE}:latest \
                         ./backend
                         """
@@ -144,7 +144,7 @@ pipeline {
                         sh """
                         docker build \
                         --pull \
-                        -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                        -t ${FRONTEND_IMAGE}:${env.IMAGE_TAG} \
                         -t ${FRONTEND_IMAGE}:latest \
                         ./frontend
                         """
@@ -163,7 +163,7 @@ pipeline {
                         --severity HIGH,CRITICAL \
                         --exit-code 1 \
                         --no-progress \
-                        ${BACKEND_IMAGE}:${IMAGE_TAG}
+                        ${BACKEND_IMAGE}:${env.IMAGE_TAG}
                         """
                     }
                 }
@@ -175,7 +175,7 @@ pipeline {
                         --severity HIGH,CRITICAL \
                         --exit-code 1 \
                         --no-progress \
-                        ${FRONTEND_IMAGE}:${IMAGE_TAG}
+                        ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
                         """
                     }
                 }
@@ -188,7 +188,7 @@ pipeline {
                 stage('Push Backend') {
                     steps {
                         sh """
-                        docker push ${BACKEND_IMAGE}:${IMAGE_TAG}
+                        docker push ${BACKEND_IMAGE}:${env.IMAGE_TAG}
                         docker push ${BACKEND_IMAGE}:latest
                         """
                     }
@@ -197,7 +197,7 @@ pipeline {
                 stage('Push Frontend') {
                     steps {
                         sh """
-                        docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}
+                        docker push ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
                         docker push ${FRONTEND_IMAGE}:latest
                         """
                     }
@@ -211,13 +211,13 @@ pipeline {
                     try {
                         sh """
                         kubectl set image deployment/backend \
-                        backend=${BACKEND_IMAGE}:${IMAGE_TAG} \
+                        backend=${BACKEND_IMAGE}:${env.IMAGE_TAG} \
                         -n speedmotors
                         """
 
                         sh """
                         kubectl set image deployment/frontend \
-                        frontend=${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                        frontend=${FRONTEND_IMAGE}:${env.IMAGE_TAG} \
                         -n speedmotors
                         """
 
