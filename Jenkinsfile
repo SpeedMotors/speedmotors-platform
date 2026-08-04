@@ -15,7 +15,6 @@ pipeline {
     }
 
     environment {
-        DOCKER_BUILDKIT = "1"
 
         DOCKERHUB_USERNAME = "shivamrajdocker"
 
@@ -37,13 +36,12 @@ pipeline {
         stage('Prepare') {
             steps {
                 script {
-                    def gitSha = sh(
+                    env.IMAGE_TAG = "${env.BUILD_NUMBER}-${sh(
                         script: 'git rev-parse --short HEAD',
                         returnStdout: true
-                    ).trim()
+                ).trim()}"
 
-                    env.IMAGE_TAG = "${env.BUILD_NUMBER}-${gitSha}"
-                    echo "Image Tag: ${env.IMAGE_TAG}"
+                 echo "IMAGE_TAG = ${env.IMAGE_TAG}"
                 }
             }
         }
