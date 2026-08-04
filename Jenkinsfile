@@ -39,9 +39,9 @@ pipeline {
                     env.IMAGE_TAG = "${env.BUILD_NUMBER}-${sh(
                         script: 'git rev-parse --short HEAD',
                         returnStdout: true
-                ).trim()}"
+                    ).trim()}"
 
-                 echo "IMAGE_TAG = ${env.IMAGE_TAG}"
+                    echo "IMAGE_TAG = ${env.IMAGE_TAG}"
                 }
             }
         }
