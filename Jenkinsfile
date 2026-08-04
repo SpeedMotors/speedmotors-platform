@@ -36,10 +36,13 @@ pipeline {
         stage('Prepare') {
             steps {
                 script {
-                    env.IMAGE_TAG = "${env.BUILD_NUMBER}-${sh(
+
+                    def gitSha = sh(
                         script: 'git rev-parse --short HEAD',
                         returnStdout: true
-                    ).trim()}"
+                    ).trim()
+
+                    env.IMAGE_TAG = "${env.BUILD_NUMBER}-${gitSha}"
 
                     echo "IMAGE_TAG = ${env.IMAGE_TAG}"
                 }
