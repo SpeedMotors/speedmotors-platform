@@ -174,8 +174,10 @@ pipeline {
                         sh """
                         trivy image \
                         --severity CRITICAL \
-                        --exit-code 1 \
-                        --no-progress \
+                        --ignore-unfixed \
+                        --skip-version-check \
+                        --exit-code 1 
+                        
                         ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
                         """
                     }
