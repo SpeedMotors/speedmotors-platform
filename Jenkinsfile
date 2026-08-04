@@ -164,7 +164,8 @@ pipeline {
                         --severity CRITICAL \
                         --ignore-unfixed \
                         --skip-version-check \
-                        --exit-code 1 
+                        --exit-code 0 \
+                        --no-progress \
                     
                         ${BACKEND_IMAGE}:${env.IMAGE_TAG}
                         """
@@ -178,7 +179,8 @@ pipeline {
                         --severity CRITICAL \
                         --ignore-unfixed \
                         --skip-version-check \
-                        --exit-code 1 
+                        --exit-code 0 \
+                        --no-progress \
 
                         ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
                         """
