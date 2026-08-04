@@ -161,13 +161,12 @@ pipeline {
                     steps {
                         sh """
                         trivy image \
-                        --severity CRITICAL \
-                        --ignore-unfixed \
-                        --skip-version-check \
-                        --exit-code 0 \
-                        --no-progress \
-                    
-                        ${BACKEND_IMAGE}:${env.IMAGE_TAG}
+                          --severity CRITICAL \
+                          --ignore-unfixed \
+                          --skip-version-check \
+                          --exit-code 0 \
+                          --no-progress \
+                          ${BACKEND_IMAGE}:${env.IMAGE_TAG}
                         """
                     }
                 }
@@ -176,13 +175,12 @@ pipeline {
                     steps {
                         sh """
                         trivy image \
-                        --severity CRITICAL \
-                        --ignore-unfixed \
-                        --skip-version-check \
-                        --exit-code 0 \
-                        --no-progress \
-
-                        ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
+                          --severity CRITICAL \
+                          --ignore-unfixed \
+                          --skip-version-check \
+                          --exit-code 0 \
+                          --no-progress \
+                          ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
                         """
                     }
                 }
