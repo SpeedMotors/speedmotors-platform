@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-    stage('Prepare') {
+        stage('Prepare') {
             steps {
                 script {
                     def gitSha = sh(
@@ -50,51 +50,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Detect Changes') {
-            steps {
-                
-                script {
-                
-                    env.BACKEND_CHANGED = "false"
-                    env.FRONTEND_CHANGED = "false"
-                    
-                    if (currentBuild.changeSets.isEmpty()) {
-                        echo "No changelog found. Building everything."
-                        
-                        env.BACKEND_CHANGED = "true"
-                        env.FRONTEND_CHANGED = "true"
-                    } else {
-                        currentBuild.changeSets.each { changeSet ->
-
-                    changeSet.items.each { item ->
-
-                        item.affectedFiles.each { file ->
-
-                            if (file.path.startsWith("backend/")) {
-                                env.BACKEND_CHANGED = "true"
-                            }
-
-                            if (file.path.startsWith("frontend/")) {
-                                env.FRONTEND_CHANGED = "true"
-                            }
-
-                        }
-
-                    }
-
-                }
-
-            }
-
-            echo "Backend Changed : ${env.BACKEND_CHANGED}"
-            echo "Frontend Changed : ${env.FRONTEND_CHANGED}"
-
-        }
-
-    }
-
-}
 
         stage('Backend Build & Test') {
 
@@ -189,18 +144,19 @@ pipeline {
         }
 
         stage('Quality Gate') {
-
-            steps {
-
-                timeout(time: 10, unit: 'MINUTES') {
-
-                    waitForQualityGate abortPipeline: true
-
+            when {
+                expression {
+                    env.BACKEND_CHANGED == "true" ||
+                    env.FRONTEND_CHANGED == "true"
                 }
-
             }
-
+            
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
         }
+    }
 
                 stage('Docker Login') {
 
