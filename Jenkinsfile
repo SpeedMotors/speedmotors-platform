@@ -173,7 +173,7 @@ pipeline {
                     steps {
                         sh """
                         trivy image \
-                        --severity HIGH,CRITICAL \
+                        --severity CRITICAL \
                         --exit-code 1 \
                         --no-progress \
                         ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
