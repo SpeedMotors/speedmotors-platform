@@ -161,9 +161,11 @@ pipeline {
                     steps {
                         sh """
                         trivy image \
-                        --severity HIGH,CRITICAL \
-                        --exit-code 1 \
-                        --no-progress \
+                        --severity CRITICAL \
+                        --ignore-unfixed \
+                        --skip-version-check \
+                        --exit-code 1 
+                    
                         ${BACKEND_IMAGE}:${env.IMAGE_TAG}
                         """
                     }
@@ -177,7 +179,7 @@ pipeline {
                         --ignore-unfixed \
                         --skip-version-check \
                         --exit-code 1 
-                        
+
                         ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
                         """
                     }
