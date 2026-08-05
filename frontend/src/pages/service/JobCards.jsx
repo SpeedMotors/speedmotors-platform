@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Wrench, User, Calendar, DollarSign, Plus, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { FileText, Wrench, User, Calendar, IndianRupee, Plus, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import Card, { CardContent } from '../../components/Card';
 import Button from '../../components/Button';
 import api from '../../services/api';
@@ -177,7 +177,7 @@ const JobCards = () => {
                           <User size={12} /> {card.technician?.name || 'Unassigned'}
                         </span>
                         <span className="font-mono text-white font-bold">
-                          ${card.totalCost?.toFixed(2) || '0.00'}
+                          ₹{card.totalCost?.toFixed(2) || '0.00'}
                         </span>
                       </div>
                     </div>
@@ -280,7 +280,7 @@ const JobCards = () => {
                         {/* Parts & Billing Section */}
                         <div className="border-t border-white/5 pt-6">
                           <h4 className="text-white font-bold mb-4 flex items-center gap-2">
-                            <DollarSign size={16} /> Parts & Labor Charges Log
+                            <IndianRupee size={16} /> Parts & Labor Charges Log
                           </h4>
                           
                           <div className="space-y-3 mb-4">
@@ -288,7 +288,7 @@ const JobCards = () => {
                               <div key={index} className="flex justify-between items-center bg-charcoal-800 p-2.5 rounded-lg border border-white/5 text-sm">
                                 <span className="text-gray-300 font-medium">{part.name}</span>
                                 <div className="flex items-center gap-4">
-                                  <span className="font-mono text-white">${parseFloat(part.price).toFixed(2)}</span>
+                                  <span className="font-mono text-white">₹{parseFloat(part.price).toFixed(2)}</span>
                                   <button 
                                     type="button" 
                                     onClick={() => handleRemovePart(index)}
@@ -329,7 +329,7 @@ const JobCards = () => {
                           <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl mt-6">
                             <span className="text-white font-medium">Estimated Invoice Balance</span>
                             <span className="text-xl font-bold text-accent-red font-mono">
-                              ${computedTotal.toFixed(2)}
+                              ₹{computedTotal.toFixed(2)}
                             </span>
                           </div>
                         </div>

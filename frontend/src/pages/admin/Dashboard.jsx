@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, Users, Car, Wrench, ArrowUpRight } from 'lucide-react';
+import { IndianRupee, Users, Car, Wrench, ArrowUpRight } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Card, { CardContent } from '../../components/Card';
 import { mockData } from '../../services/api';
@@ -43,7 +43,7 @@ const Dashboard = () => {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Revenue" value="$2.4M" trend="+12.5%" icon={DollarSign} colorClass="text-green-400" />
+        <StatCard title="Total Revenue" value="₹2.4M" trend="+12.5%" icon={IndianRupee} colorClass="text-green-400" />
         <StatCard title="Active Leads" value="142" trend="+8.2%" icon={Users} colorClass="text-accent-amber" />
         <StatCard title="Vehicles Sold" value="38" trend="+14.1%" icon={Car} colorClass="text-blue-400" />
         <StatCard title="Open Job Cards" value="15" trend="+2.4%" icon={Wrench} colorClass="text-purple-400" />
@@ -66,7 +66,7 @@ const Dashboard = () => {
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                   <XAxis dataKey="name" stroke="#ffffff50" axisLine={false} tickLine={false} />
-                  <YAxis stroke="#ffffff50" axisLine={false} tickLine={false} tickFormatter={(value) => `$${value / 1000}k`} />
+                  <YAxis stroke="#ffffff50" axisLine={false} tickLine={false} tickFormatter={(value) => `₹${value / 1000}k`} />
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #ffffff10', borderRadius: '8px', color: '#fff' }}
                     itemStyle={{ color: '#fff' }}

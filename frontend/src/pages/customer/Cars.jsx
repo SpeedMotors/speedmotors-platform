@@ -91,7 +91,7 @@ const Cars = () => {
                       <h3 className="text-sm text-gray-400 font-medium">{car.make}</h3>
                       <h2 className="text-xl font-display font-bold text-white">{car.model}</h2>
                     </div>
-                    <span className="text-lg font-bold text-accent-red">${car.price.toLocaleString()}</span>
+                    <span className="text-lg font-bold text-accent-red">₹{car.price.toLocaleString()}</span>
                   </div>
                   <div className="mt-4 pt-4 border-t border-white/5 flex gap-2 mt-auto">
                     <Button 
@@ -155,15 +155,15 @@ const Cars = () => {
             <div className="space-y-4 bg-charcoal-900 rounded-xl p-5 border border-white/5">
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">MSRP</span>
-                <span className="text-white font-semibold">${quoteCar.price.toLocaleString()}</span>
+                <span className="text-white font-semibold">₹{quoteCar.price.toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center border-y border-white/5 py-3 my-3">
                 <span className="text-gray-400 text-sm">Est. Monthly (72 mo, 5% APR)</span>
-                <span className="text-accent-red font-bold text-2xl">${Math.round(quoteCar.price / 72 * 1.05).toLocaleString()}<span className="text-sm text-gray-500">/mo</span></span>
+                <span className="text-accent-red font-bold text-2xl">₹{Math.round(quoteCar.price / 72 * 1.05).toLocaleString()}<span className="text-sm text-gray-500">/mo</span></span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-400">Down Payment (10%)</span>
-                <span className="text-white font-semibold">${(quoteCar.price * 0.1).toLocaleString()}</span>
+                <span className="text-white font-semibold">₹{(quoteCar.price * 0.1).toLocaleString()}</span>
               </div>
             </div>
             

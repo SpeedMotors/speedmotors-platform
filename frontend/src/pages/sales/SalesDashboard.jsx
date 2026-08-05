@@ -4,7 +4,7 @@ import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
-import { DollarSign, TrendingUp, Users, Car } from 'lucide-react';
+import { IndianRupee, TrendingUp, Users, Car } from 'lucide-react';
 import Card, { CardContent } from '../../components/Card';
 
 const dataSales = [
@@ -62,7 +62,7 @@ const SalesDashboard = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { title: 'Total Revenue', value: 1250000, prefix: '$', icon: DollarSign, color: 'text-green-400' },
+          { title: 'Total Revenue', value: 1250000, prefix: '₹', icon: IndianRupee, color: 'text-green-400' },
           { title: 'Cars Sold', value: 42, icon: Car, color: 'text-accent-amber' },
           { title: 'New Leads', value: 128, icon: Users, color: 'text-blue-400' },
           { title: 'Conversion Rate', value: 18, suffix: '%', icon: TrendingUp, color: 'text-accent-red' }
@@ -107,7 +107,7 @@ const SalesDashboard = () => {
                 <LineChart data={dataSales}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                   <XAxis dataKey="name" stroke="#a1a1aa" tick={{fill: '#a1a1aa'}} axisLine={false} />
-                  <YAxis stroke="#a1a1aa" tick={{fill: '#a1a1aa'}} axisLine={false} tickFormatter={val => `$${val/1000}k`} />
+                  <YAxis stroke="#a1a1aa" tick={{fill: '#a1a1aa'}} axisLine={false} tickFormatter={val => `₹${val/1000}k`} />
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#1e1e1e', borderColor: '#ffffff20', borderRadius: '12px', color: '#fff' }}
                     itemStyle={{ color: '#fff' }}

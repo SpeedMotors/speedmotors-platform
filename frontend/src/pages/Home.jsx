@@ -200,9 +200,9 @@ const Home = () => {
 
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { name: "Elektrify X", type: "SUV", price: "$55,000", img: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=800" },
-              { name: "Aero Sedan", type: "Sedan", price: "$42,000", img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=800" },
-              { name: "Thrust Coupe", type: "Coupe", price: "$68,000", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800" }
+              { name: "Elektrify X", type: "SUV", price: "₹55,000", img: "https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&q=80&w=800" },
+              { name: "Aero Sedan", type: "Sedan", price: "₹42,000", img: "https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&q=80&w=800" },
+              { name: "Thrust Coupe", type: "Coupe", price: "₹68,000", img: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=800" }
             ].map((car, idx) => (
               <motion.div
                 key={idx}

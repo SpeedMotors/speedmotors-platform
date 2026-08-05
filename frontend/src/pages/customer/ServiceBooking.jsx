@@ -406,19 +406,19 @@ const ServiceBooking = () => {
                       jobCard.parts.map((part, idx) => (
                         <div key={idx} className="flex justify-between text-sm">
                           <span className="text-gray-300">{part.name}</span>
-                          <span className="text-white font-mono">${parseFloat(part.price).toFixed(2)}</span>
+                          <span className="text-white font-mono">₹{parseFloat(part.price).toFixed(2)}</span>
                         </div>
                       ))
                     ) : (
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-300">Standard Service Charge</span>
-                        <span className="text-white font-mono">${jobCard.totalCost?.toFixed(2) || '0.00'}</span>
+                        <span className="text-white font-mono">₹{jobCard.totalCost?.toFixed(2) || '0.00'}</span>
                       </div>
                     )}
                   </div>
                   <div className="mt-6 pt-4 border-t border-white/10 flex justify-between items-center">
                     <span className="text-lg font-bold text-white">Total Due</span>
-                    <span className="text-2xl font-bold text-accent-red">${jobCard.totalCost?.toFixed(2) || '0.00'}</span>
+                    <span className="text-2xl font-bold text-accent-red">₹{jobCard.totalCost?.toFixed(2) || '0.00'}</span>
                   </div>
                 </div>
 

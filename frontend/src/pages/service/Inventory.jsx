@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Search, Edit2, Trash2, ArrowUp, ArrowDown, RefreshCw, 
-  AlertTriangle, CheckCircle, Package, DollarSign, History, AlertCircle
+  AlertTriangle, CheckCircle, Package, IndianRupee, History, AlertCircle
 } from 'lucide-react';
 import Card, { CardContent } from '../../components/Card';
 import Button from '../../components/Button';
@@ -260,10 +260,10 @@ const Inventory = () => {
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-gray-400 text-sm font-medium mb-1">Inventory Value</p>
-              <h3 className="text-2xl font-bold text-white">${metrics.totalInventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+              <h3 className="text-2xl font-bold text-white">₹{metrics.totalInventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
             </div>
             <div className="p-3.5 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400">
-              <DollarSign size={22} />
+              <IndianRupee size={22} />
             </div>
           </CardContent>
         </Card>
@@ -352,7 +352,7 @@ const Inventory = () => {
                               {part.category}
                             </span>
                           </td>
-                          <td className="p-4 text-right font-medium text-white">${part.price.toFixed(2)}</td>
+                          <td className="p-4 text-right font-medium text-white">₹{part.price.toFixed(2)}</td>
                           <td className="p-4 text-center">
                             <div className="flex flex-col items-center justify-center">
                               <span className={`text-xs px-2.5 py-1 rounded-full font-semibold ${
@@ -553,7 +553,7 @@ const Inventory = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-gray-400 mb-1">Unit Price ($)</label>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1">Unit Price (₹)</label>
                     <input 
                       type="number" 
                       step="0.01"

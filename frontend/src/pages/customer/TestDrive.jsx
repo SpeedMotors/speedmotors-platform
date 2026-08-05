@@ -121,7 +121,7 @@ const TestDrive = () => {
                           <CardContent className="p-4 flex-1 flex flex-col">
                             <p className="text-xs text-gray-400 mb-1">{car.type}</p>
                             <h4 className="text-lg font-bold text-white mb-1">{car.make} {car.model}</h4>
-                            <p className="text-accent-red font-semibold text-sm mb-4">${car.price.toLocaleString()}</p>
+                            <p className="text-accent-red font-semibold text-sm mb-4">₹{car.price.toLocaleString()}</p>
                             
                             {car.specs && (
                               <div className="mt-auto grid grid-cols-2 gap-3 pt-4 border-t border-white/5">
