@@ -133,7 +133,6 @@ pipeline {
                         sh """
                         docker build \
                         --pull \
-                        -t ${BACKEND_IMAGE}:${env.IMAGE_TAG} \
                         -t ${BACKEND_IMAGE}:latest \
                         ./backend
                         """
@@ -145,7 +144,6 @@ pipeline {
                         sh """
                         docker build \
                         --pull \
-                        -t ${FRONTEND_IMAGE}:${env.IMAGE_TAG} \
                         -t ${FRONTEND_IMAGE}:latest \
                         ./frontend
                         """
@@ -163,7 +161,7 @@ pipeline {
                   --skip-version-check \
                   --exit-code 0 \
                   --no-progress \
-                  ${BACKEND_IMAGE}:${env.IMAGE_TAG}
+                  ${BACKEND_IMAGE}:latest
                 """
 
                 sh """
@@ -173,7 +171,7 @@ pipeline {
                   --skip-version-check \
                   --exit-code 0 \
                   --no-progress \
-                  ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
+                  ${FRONTEND_IMAGE}:latest
                 """
             }
         } 
@@ -184,7 +182,6 @@ pipeline {
                 stage('Push Backend') {
                     steps {
                         sh """
-                        docker push ${BACKEND_IMAGE}:${env.IMAGE_TAG}
                         docker push ${BACKEND_IMAGE}:latest
                         """
                     }
@@ -193,7 +190,6 @@ pipeline {
                 stage('Push Frontend') {
                     steps {
                         sh """
-                        docker push ${FRONTEND_IMAGE}:${env.IMAGE_TAG}
                         docker push ${FRONTEND_IMAGE}:latest
                         """
                     }
@@ -207,15 +203,19 @@ pipeline {
                     try {
                         sh """
                         kubectl set image deployment/backend \
-                        backend=${BACKEND_IMAGE}:${env.IMAGE_TAG} \
+                        backend=${BACKEND_IMAGE}:latest \
                         -n speedmotors
                         """
 
                         sh """
                         kubectl set image deployment/frontend \
-                        frontend=${FRONTEND_IMAGE}:${env.IMAGE_TAG} \
+                        frontend=${FRONTEND_IMAGE}:latest \
                         -n speedmotors
                         """
+                        sh '''
+                        kubectl rollout restart deployment/backend -n speedmotors
+                        kubectl rollout restart deployment/frontend -n speedmotors
+                        '''
 
                         sh '''
                         kubectl rollout status deployment/backend \
